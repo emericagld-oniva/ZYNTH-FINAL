@@ -41,6 +41,11 @@ enum Role {
   GUEST
 }
 
+enum AccessLevel {
+  READ
+  WRITE
+}
+
 // ─── CORE MODELS ───────────────────────────────────────
 
 model User {
@@ -66,8 +71,10 @@ model Company {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members CompanyMember[]
-  clients Client[]
+  members      CompanyMember[]
+  clients      Client[]
+  vaultFolders VaultFolder[]
+  vaultItems   VaultItem[]
 }
 
 model CompanyMember {
@@ -83,6 +90,9 @@ model CompanyMember {
   @@unique([userId, companyId])
   @@index([userId])
   @@index([companyId])
+
+  createdItems VaultItem[]   @relation("CreatedBy")
+  accesses     VaultAccess[]
 }
 
 // ─── NEXTAUTH REQUIRED ─────────────────────────────────
@@ -120,4 +130,56 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// ─── VAULT ─────────────────────────────────────────────
+
+model VaultFolder {
+  id        String   @id @default(cuid())
+  name      String
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  items    VaultItem[]
+  accesses VaultAccess[]
+
+  @@index([companyId])
+}
+
+model VaultItem {
+  id                String        @id @default(cuid())
+  title             String
+  username          String?
+  encryptedPassword String
+  url               String?
+  notes             String?
+  folderId          String?
+  folder            VaultFolder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  companyId         String
+  company           Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdById       String
+  createdBy         CompanyMember @relation("CreatedBy", fields: [createdById], references: [id])
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  accesses VaultAccess[]
+
+  @@index([companyId])
+  @@index([folderId])
+}
+
+model VaultAccess {
+  id          String        @id @default(cuid())
+  memberId    String
+  member      CompanyMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  itemId      String?
+  item        VaultItem?    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  folderId    String?
+  folder      VaultFolder?  @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  accessLevel AccessLevel   @default(READ)
+
+  @@index([memberId])
+  @@index([itemId])
+  @@index([folderId])
 }
