@@ -27,10 +27,9 @@ function generate(length: number, opts: GenOptions): string {
   if (opts.numbers) pool += CHARS.numbers;
   if (opts.symbols) pool += CHARS.symbols;
   if (!pool) pool = CHARS.lower; // fallback — never produce empty password
-  return Array.from(
-    { length },
-    () => pool[Math.floor(Math.random() * pool.length)]
-  ).join("");
+  const array = new Uint32Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array, (n) => pool[n % pool.length]).join("");
 }
 
 function strengthScore(password: string): 0 | 1 | 2 | 3 | 4 {

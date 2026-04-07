@@ -126,8 +126,9 @@ function DrawerForm({
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                aria-pressed={showPassword}
                 className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-600 hover:text-gray-300 transition-colors"
-                title={showPassword ? "Masquer" : "Afficher"}
               >
                 {showPassword
                   ? <EyeOff className="w-3.5 h-3.5" />
@@ -223,7 +224,7 @@ function DrawerForm({
         </button>
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || password.trim() === ""}
           className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-sm font-semibold text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {pending ? (
