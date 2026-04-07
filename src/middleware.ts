@@ -15,8 +15,8 @@ export const config = {
     // - _next internals
     // - static assets (favicon, svg, etc.)
     // - public marketing routes: /produit, /pricing, /contact
-    // - auth page: /login
+    // - auth pages: /login, /register
     // - API routes: /api/*
-    "/((?!$|_next|favicon\\.ico|.*\\.svg|produit|pricing|contact|login|api).*)",
+    "/((?!$|_next|favicon\\.ico|.*\\.svg|produit|pricing|contact|login|register|api).*)",
   ],
 };
