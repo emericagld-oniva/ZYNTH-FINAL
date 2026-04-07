@@ -7,6 +7,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── CRM ───────────────────────────────────────────────
+
+enum ClientStatus {
+  LEAD
+  ACTIF
+  INACTIF
+}
+
+model Client {
+  id        String       @id @default(cuid())
+  name      String
+  email     String?
+  company   String?
+  status    ClientStatus @default(LEAD)
+
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([userId])
+}
+
 // ─── RBAC ──────────────────────────────────────────────
 
 enum Role {
@@ -34,6 +58,7 @@ model User {
   accounts    Account[]
   sessions    Session[]
   memberships CompanyMember[]
+  clients     Client[]
 }
 
 model Company {

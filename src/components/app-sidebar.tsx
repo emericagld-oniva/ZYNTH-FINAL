@@ -1,16 +1,17 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, Settings, Users, LogOut } from "lucide-react";
+import { LayoutDashboard, Settings, Users, UsersRound, LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/users",     label: "Utilisateurs", icon: Users },
-  { href: "/settings",  label: "Paramètres",   icon: Settings },
+  { href: "/dashboard", label: "Dashboard",     icon: LayoutDashboard },
+  { href: "/clients",   label: "Clients",        icon: UsersRound },
+  { href: "/users",     label: "Utilisateurs",   icon: Users },
+  { href: "/settings",  label: "Paramètres",     icon: Settings },
 ] as const;
 
 interface AppSidebarProps {

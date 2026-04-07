@@ -1,43 +1,7 @@
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import { TrendingUp, TrendingDown, Users, DollarSign, FolderKanban, CheckCircle2 } from "lucide-react";
-
-const STATS = [
-  {
-    label: "Utilisateurs actifs",
-    value: "1 284",
-    delta: "+12%",
-    trend: "up",
-    icon: Users,
-    accent: "orange",
-    sub: "vs mois dernier",
-  },
-  {
-    label: "Revenus du mois",
-    value: "€24 890",
-    delta: "+8.3%",
-    trend: "up",
-    icon: DollarSign,
-    accent: "emerald",
-    sub: "vs mois dernier",
-  },
-  {
-    label: "Projets en cours",
-    value: "12",
-    delta: "-2",
-    trend: "down",
-    icon: FolderKanban,
-    accent: "sky",
-    sub: "depuis la semaine dernière",
-  },
-  {
-    label: "Taux de résolution",
-    value: "94.2%",
-    delta: "+1.4pp",
-    trend: "up",
-    icon: CheckCircle2,
-    accent: "violet",
-    sub: "tickets clôturés",
-  },
-] as const;
 
 const ACCENT_CLASSES = {
   orange:  { icon: "text-orange-400",  glow: "bg-orange-500/[0.08]",  border: "border-orange-500/[0.12]",  badge: "text-orange-400  bg-orange-400/10"  },
@@ -46,7 +10,14 @@ const ACCENT_CLASSES = {
   violet:  { icon: "text-violet-400",  glow: "bg-violet-500/[0.07]",  border: "border-violet-500/[0.12]",  badge: "text-violet-400  bg-violet-400/10"  },
 } as const;
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+
+  const clientCount = await prisma.client.count({
+    where: { userId: session.user.id },
+  });
+
   const now = new Date();
   const dateLabel = now.toLocaleDateString("fr-FR", {
     weekday: "long",
@@ -54,6 +25,45 @@ export default function DashboardPage() {
     month: "long",
     year: "numeric",
   });
+
+  const STATS = [
+    {
+      label: "Clients",
+      value: clientCount.toString(),
+      delta: "CRM",
+      trend: "up" as const,
+      icon: Users,
+      accent: "orange" as const,
+      sub: "dans votre portefeuille",
+    },
+    {
+      label: "Revenus du mois",
+      value: "€24 890",
+      delta: "+8.3%",
+      trend: "up" as const,
+      icon: DollarSign,
+      accent: "emerald" as const,
+      sub: "vs mois dernier",
+    },
+    {
+      label: "Projets en cours",
+      value: "12",
+      delta: "-2",
+      trend: "down" as const,
+      icon: FolderKanban,
+      accent: "sky" as const,
+      sub: "depuis la semaine dernière",
+    },
+    {
+      label: "Taux de résolution",
+      value: "94.2%",
+      delta: "+1.4pp",
+      trend: "up" as const,
+      icon: CheckCircle2,
+      accent: "violet" as const,
+      sub: "tickets clôturés",
+    },
+  ];
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -67,7 +77,7 @@ export default function DashboardPage() {
           Tableau de bord
         </h1>
         <p className="mt-1 text-sm text-gray-500">
-          Vue d'ensemble de votre activité Zynth.
+          Bonjour {session.user.name ?? session.user.email}. Voici votre activité.
         </p>
       </div>
 
@@ -82,12 +92,8 @@ export default function DashboardPage() {
               key={stat.label}
               className={`relative overflow-hidden rounded-2xl border ${colors.border} bg-white/[0.025] backdrop-blur-sm p-5 flex flex-col gap-4`}
             >
-              {/* Background glow */}
-              <div
-                className={`absolute -top-6 -right-6 w-24 h-24 rounded-full blur-2xl ${colors.glow} pointer-events-none`}
-              />
+              <div className={`absolute -top-6 -right-6 w-24 h-24 rounded-full blur-2xl ${colors.glow} pointer-events-none`} />
 
-              {/* Icon + label */}
               <div className="flex items-start justify-between">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${colors.glow} border ${colors.border}`}>
                   <stat.icon className={`w-4 h-4 ${colors.icon}`} />
@@ -98,7 +104,6 @@ export default function DashboardPage() {
                 </span>
               </div>
 
-              {/* Value */}
               <div>
                 <p className="text-2xl font-bold tracking-tight text-white tabular-nums">
                   {stat.value}
@@ -106,7 +111,6 @@ export default function DashboardPage() {
                 <p className="text-xs text-gray-500 mt-0.5">{stat.label}</p>
               </div>
 
-              {/* Sub */}
               <p className="text-[11px] text-gray-700 border-t border-white/[0.04] pt-3 -mb-1">
                 {stat.sub}
               </p>
@@ -115,7 +119,7 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Placeholder content area */}
+      {/* Placeholder */}
       <div className="mt-6 rounded-2xl border border-white/[0.05] bg-white/[0.015] backdrop-blur-sm p-8 flex items-center justify-center min-h-48">
         <div className="text-center">
           <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.07] flex items-center justify-center mx-auto mb-3">
