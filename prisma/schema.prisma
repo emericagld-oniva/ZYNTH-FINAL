@@ -158,8 +158,8 @@ model VaultItem {
   folder            VaultFolder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
   companyId         String
   company           Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdById       String
-  createdBy         CompanyMember @relation("CreatedBy", fields: [createdById], references: [id])
+  createdById       String?
+  createdBy         CompanyMember? @relation("CreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
@@ -179,6 +179,8 @@ model VaultAccess {
   folder      VaultFolder?  @relation(fields: [folderId], references: [id], onDelete: Cascade)
   accessLevel AccessLevel   @default(READ)
 
+  @@unique([memberId, itemId])
+  @@unique([memberId, folderId])
   @@index([memberId])
   @@index([itemId])
   @@index([folderId])
