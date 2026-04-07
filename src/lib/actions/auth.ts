@@ -25,7 +25,7 @@ export async function loginAction(
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/dashboard",
+      redirectTo: "/workspaces",
     });
   } catch (error) {
     if (error instanceof AuthError) {

@@ -16,6 +16,7 @@ export async function createClientAction(
   const session = await auth();
   if (!session?.user?.id) return { error: "Non autorisé." };
 
+  const companyId = (formData.get("companyId") as string)?.trim();
   const name = (formData.get("name") as string)?.trim();
   const email = (formData.get("email") as string)?.trim() || null;
   const company = (formData.get("company") as string)?.trim() || null;
@@ -24,7 +25,13 @@ export async function createClientAction(
     ? (rawStatus as ClientStatus)
     : ClientStatus.LEAD;
 
+  if (!companyId) return { error: "Workspace manquant." };
   if (!name) return { error: "Le nom du client est requis." };
+
+  const membership = await prisma.companyMember.findUnique({
+    where: { userId_companyId: { userId: session.user.id, companyId } },
+  });
+  if (!membership) return { error: "Accès refusé à ce workspace." };
 
   await prisma.client.create({
     data: {
@@ -32,11 +39,11 @@ export async function createClientAction(
       email: email ?? undefined,
       company: company ?? undefined,
       status,
-      userId: session.user.id,
+      companyId,
     },
   });
 
-  revalidatePath("/clients");
-  revalidatePath("/dashboard");
+  revalidatePath(`/${companyId}/clients`);
+  revalidatePath(`/${companyId}/dashboard`);
   return { success: true };
 }

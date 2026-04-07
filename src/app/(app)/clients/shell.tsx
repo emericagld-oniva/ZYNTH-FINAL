@@ -65,7 +65,7 @@ function Toast({ message, onDismiss }: { message: string; onDismiss: () => void 
 
 // ─── Shell ──────────────────────────────────────────────
 
-export default function ClientsShell({ clients }: { clients: Client[] }) {
+export default function ClientsShell({ clients, companyId }: { clients: Client[]; companyId: string }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -87,6 +87,7 @@ export default function ClientsShell({ clients }: { clients: Client[] }) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleSuccess}
+        companyId={companyId}
       />
 
       <div className="p-8 max-w-6xl mx-auto">

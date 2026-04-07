@@ -14,14 +14,17 @@ interface ClientModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (name: string) => void;
+  companyId: string;
 }
 
 function DrawerForm({
   onClose,
   onSuccess,
+  companyId,
 }: {
   onClose: () => void;
   onSuccess: (name: string) => void;
+  companyId: string;
 }) {
   const [state, action, pending] = useActionState<CrmState, FormData>(
     createClientAction,
@@ -41,6 +44,7 @@ function DrawerForm({
 
   return (
     <form ref={formRef} action={action} className="flex flex-col h-full">
+      <input type="hidden" name="companyId" value={companyId} />
 
       {/* ── Header ─────────────────────────────── */}
       <div className="flex items-center justify-between px-6 pt-6 pb-5 border-b border-white/[0.06]">
@@ -164,7 +168,7 @@ function DrawerForm({
   );
 }
 
-export function ClientModal({ isOpen, onClose, onSuccess }: ClientModalProps) {
+export function ClientModal({ isOpen, onClose, onSuccess, companyId }: ClientModalProps) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -189,7 +193,7 @@ export function ClientModal({ isOpen, onClose, onSuccess }: ClientModalProps) {
             transition={{ type: "spring", stiffness: 320, damping: 32 }}
             className="fixed right-0 top-0 h-full w-full max-w-md z-50 flex flex-col bg-[#0c0c0c]/90 backdrop-blur-xl border-l border-white/[0.08] shadow-2xl shadow-black/60"
           >
-            <DrawerForm onClose={onClose} onSuccess={onSuccess} />
+            <DrawerForm onClose={onClose} onSuccess={onSuccess} companyId={companyId} />
           </motion.div>
         </>
       )}

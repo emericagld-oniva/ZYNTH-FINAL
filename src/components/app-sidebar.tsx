@@ -1,39 +1,43 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, Settings, Users, UsersRound, LogOut } from "lucide-react";
+import { LayoutDashboard, Settings, UsersRound, LogOut, Building2 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 
-const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard",     icon: LayoutDashboard },
-  { href: "/clients",   label: "Clients",        icon: UsersRound },
-  { href: "/users",     label: "Utilisateurs",   icon: Users },
-  { href: "/settings",  label: "Paramètres",     icon: Settings },
-] as const;
-
 interface AppSidebarProps {
+  companyId: string;
+  companyName: string;
   userEmail?: string | null;
 }
 
-export function AppSidebar({ userEmail }: AppSidebarProps) {
+export function AppSidebar({ companyId, companyName, userEmail }: AppSidebarProps) {
   const pathname = usePathname();
+
+  const NAV_ITEMS = [
+    { href: `/${companyId}/dashboard`, label: "Dashboard",  icon: LayoutDashboard },
+    { href: `/${companyId}/clients`,   label: "Clients",    icon: UsersRound },
+    { href: `/${companyId}/settings`,  label: "Paramètres", icon: Settings },
+  ];
 
   return (
     <aside className="w-60 h-screen sticky top-0 flex flex-col shrink-0 bg-[#080808] border-r border-white/[0.05]">
 
-      {/* Logo */}
-      <div className="px-5 pt-6 pb-5 border-b border-white/[0.04]">
-        <Link href="/" className="block w-fit" aria-label="Retour à l'accueil">
-          <Image
-            src="/ZYNTH-APP.svg"
-            alt="Zynth"
-            width={80}
-            height={20}
-            className="h-5 w-auto opacity-75 hover:opacity-100 transition-opacity duration-200"
-          />
+      {/* Company header */}
+      <div className="px-4 pt-5 pb-4 border-b border-white/[0.04]">
+        <Link
+          href="/workspaces"
+          className="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-white/[0.04] transition-colors group"
+          title="Changer d'espace"
+        >
+          <div className="w-7 h-7 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0 text-xs font-bold text-orange-400">
+            {companyName.charAt(0).toUpperCase()}
+          </div>
+          <span className="text-sm font-medium text-gray-300 truncate group-hover:text-white transition-colors">
+            {companyName}
+          </span>
+          <Building2 className="w-3.5 h-3.5 text-gray-700 shrink-0 ml-auto group-hover:text-gray-500 transition-colors" />
         </Link>
       </div>
 
@@ -65,7 +69,6 @@ export function AppSidebar({ userEmail }: AppSidebarProps) {
                 />
                 {item.label}
 
-                {/* Active dot */}
                 <AnimatePresence>
                   {isActive && (
                     <motion.span

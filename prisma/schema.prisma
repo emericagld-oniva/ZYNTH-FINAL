@@ -22,20 +22,19 @@ model Client {
   company   String?
   status    ClientStatus @default(LEAD)
 
-  userId    String
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId String
+  workspace Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 
-  @@index([userId])
+  @@index([companyId])
 }
 
 // ─── RBAC ──────────────────────────────────────────────
 
 enum Role {
   FOUNDER
-  CO_FOUNDER
   MANAGER
   EMPLOYEE
   INTERN
@@ -58,19 +57,17 @@ model User {
   accounts    Account[]
   sessions    Session[]
   memberships CompanyMember[]
-  clients     Client[]
 }
 
 model Company {
-  id        String  @id @default(cuid())
+  id        String   @id @default(cuid())
   name      String
-  slug      String  @unique
   logoUrl   String?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   members CompanyMember[]
+  clients Client[]
 }
 
 model CompanyMember {
