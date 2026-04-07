@@ -25,7 +25,7 @@ export default function MarketingLayout({
             <Link href="/produit" className="hover:text-white transition-colors">Produit</Link>
             <Link href="/pricing" className="hover:text-white transition-colors">Tarifs</Link>
             <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
-            <a href="https://instagram.com/zynth.app" target="_blank" className="font-medium hover:text-orange-500 transition-colors">@zynth.app</a>
+            <a href="https://instagram.com/zynth.app" target="_blank" rel="noopener noreferrer" className="font-medium hover:text-orange-500 transition-colors">@zynth.app</a>
           </div>
         </div>
         <div className="text-center text-xs text-gray-700 mt-12">
