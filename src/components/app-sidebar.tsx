@@ -95,7 +95,7 @@ export function AppSidebar({ userEmail }: AppSidebarProps) {
           whileHover={{ x: 3 }}
           whileTap={{ scale: 0.97 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          onClick={() => signOut({ callbackUrl: "/auth/login" })}
+          onClick={() => signOut({ callbackUrl: "/login" })}
           className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 border border-transparent hover:text-red-400 hover:bg-red-500/[0.06] hover:border-red-500/[0.12] transition-colors duration-150"
         >
           <LogOut className="w-4 h-4 shrink-0" />

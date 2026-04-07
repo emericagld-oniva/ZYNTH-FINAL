@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export default auth((req) => {
   if (!req.auth) {
-    const loginUrl = new URL("/auth/login", req.url);
+    const loginUrl = new URL("/login", req.url);
     return NextResponse.redirect(loginUrl);
   }
 });
@@ -15,8 +15,8 @@ export const config = {
     // - _next internals
     // - static assets (favicon, svg, etc.)
     // - public marketing routes: /produit, /pricing, /contact
-    // - auth routes: /auth/*
+    // - auth page: /login
     // - API routes: /api/*
-    "/((?!$|_next|favicon\\.ico|.*\\.svg|produit|pricing|contact|auth|api).*)",
+    "/((?!$|_next|favicon\\.ico|.*\\.svg|produit|pricing|contact|login|api).*)",
   ],
 };
