@@ -77,6 +77,69 @@ export async function createVaultItemAction(
   return { success: true };
 }
 
+// ─── Update ────────────────────────────────────────────
+
+export async function updateVaultItemAction(
+  _prev: VaultState,
+  formData: FormData
+): Promise<VaultState> {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "Non autorisé." };
+
+  const itemId    = (formData.get("itemId")    as string)?.trim();
+  const companyId = (formData.get("companyId") as string)?.trim();
+  const title     = (formData.get("title")     as string)?.trim();
+  const username  = (formData.get("username")  as string)?.trim() || null;
+  const password  = formData.get("password") as string;
+  const url       = (formData.get("url")       as string)?.trim() || null;
+  const notes     = (formData.get("notes")     as string)?.trim() || null;
+  const folderId  = (formData.get("folderId")  as string)?.trim() || null;
+
+  if (!itemId)    return { error: "Identifiant de l'entrée manquant." };
+  if (!companyId) return { error: "Workspace manquant." };
+  if (!title)     return { error: "Le titre est requis." };
+
+  const membership = await prisma.companyMember.findUnique({
+    where: { userId_companyId: { userId: session.user.id, companyId } },
+  });
+  if (!membership) return { error: "Accès refusé." };
+
+  const existing = await prisma.vaultItem.findUnique({ where: { id: itemId } });
+  if (!existing || existing.companyId !== companyId) return { error: "Entrée introuvable." };
+
+  const data: Parameters<typeof prisma.vaultItem.update>[0]["data"] = {
+    title, username, url, notes, folderId,
+  };
+  // Re-encrypt only when a new password is provided
+  if (password.trim()) data.encryptedPassword = encrypt(password);
+
+  await prisma.vaultItem.update({ where: { id: itemId }, data });
+  revalidatePath(`/${companyId}/vault`);
+  return { success: true };
+}
+
+// ─── Delete ────────────────────────────────────────────
+
+export async function deleteVaultItemAction(
+  itemId: string,
+  companyId: string
+): Promise<VaultState> {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "Non autorisé." };
+
+  const membership = await prisma.companyMember.findUnique({
+    where: { userId_companyId: { userId: session.user.id, companyId } },
+  });
+  if (!membership) return { error: "Accès refusé." };
+
+  const existing = await prisma.vaultItem.findUnique({ where: { id: itemId } });
+  if (!existing || existing.companyId !== companyId) return { error: "Entrée introuvable." };
+
+  await prisma.vaultItem.delete({ where: { id: itemId } });
+  revalidatePath(`/${companyId}/vault`);
+  return { success: true };
+}
+
 // ─── Decrypt ────────────────────────────────────────────
 
 export async function decryptPasswordAction(itemId: string): Promise<DecryptResult> {
