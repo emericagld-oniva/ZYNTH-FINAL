@@ -48,25 +48,6 @@ enum AccessLevel {
   WRITE
 }
 
-enum ProjectStatus {
-  BACKLOG
-  IN_PROGRESS
-  REVIEW
-  DONE
-}
-
-enum TaskStatus {
-  TODO
-  DOING
-  DONE
-}
-
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-}
-
 // ─── CORE MODELS ───────────────────────────────────────
 
 model User {
@@ -209,6 +190,25 @@ model VaultAccess {
 }
 
 // ─── PROJECTS ──────────────────────────────────────────
+
+enum ProjectStatus {
+  BACKLOG
+  IN_PROGRESS
+  REVIEW
+  DONE
+}
+
+enum TaskStatus {
+  TODO
+  DOING
+  DONE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
 
 model Project {
   id          String        @id @default(cuid())
