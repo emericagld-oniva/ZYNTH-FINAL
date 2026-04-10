@@ -21,6 +21,24 @@ function parseDeadline(raw: FormDataEntryValue | null): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
+const VALID_STATUSES = ["BACKLOG", "IN_PROGRESS", "REVIEW", "DONE"] as const;
+type ProjectStatusValue = (typeof VALID_STATUSES)[number];
+
+function parseStatus(raw: string | null | undefined): ProjectStatusValue {
+  if (raw && (VALID_STATUSES as readonly string[]).includes(raw))
+    return raw as ProjectStatusValue;
+  return "BACKLOG";
+}
+
+async function verifyClientOwnership(
+  clientId: string | null,
+  companyId: string
+): Promise<boolean> {
+  if (!clientId) return true;
+  const client = await prisma.client.findUnique({ where: { id: clientId } });
+  return !!client && client.companyId === companyId;
+}
+
 // ─── Create ─────────────────────────────────────────────
 
 export async function createProjectAction(
@@ -33,7 +51,7 @@ export async function createProjectAction(
   const companyId   = (formData.get("companyId")   as string)?.trim();
   const title       = (formData.get("title")        as string)?.trim();
   const description = (formData.get("description")  as string)?.trim() || null;
-  const status      = (formData.get("status")        as string)?.trim() || "BACKLOG";
+  const status      = parseStatus((formData.get("status") as string)?.trim());
   const clientId    = (formData.get("clientId")      as string)?.trim() || null;
   const deadline    = parseDeadline(formData.get("deadline"));
 
@@ -43,8 +61,11 @@ export async function createProjectAction(
   const membership = await getMembership(session.user.id, companyId);
   if (!membership) return { error: "Accès refusé." };
 
+  if (!(await verifyClientOwnership(clientId, companyId)))
+    return { error: "Client introuvable." };
+
   await prisma.project.create({
-    data: { title, description, status: status as any, clientId, companyId, deadline },
+    data: { title, description, status, clientId, companyId, deadline },
   });
 
   revalidatePath(`/${companyId}/projects`);
@@ -64,11 +85,11 @@ export async function updateProjectAction(
   const companyId   = (formData.get("companyId")    as string)?.trim();
   const title       = (formData.get("title")        as string)?.trim();
   const description = (formData.get("description")  as string)?.trim() || null;
-  const status      = (formData.get("status")        as string)?.trim() || "BACKLOG";
+  const status      = parseStatus((formData.get("status") as string)?.trim());
   const clientId    = (formData.get("clientId")      as string)?.trim() || null;
   const deadline    = parseDeadline(formData.get("deadline"));
 
-  if (!projectId) return { error: "Projet introuvable." };
+  if (!projectId) return { error: "Identifiant du projet manquant." };
   if (!companyId) return { error: "Workspace manquant." };
   if (!title)     return { error: "Le titre est requis." };
 
@@ -78,9 +99,12 @@ export async function updateProjectAction(
   const existing = await prisma.project.findUnique({ where: { id: projectId } });
   if (!existing || existing.companyId !== companyId) return { error: "Projet introuvable." };
 
+  if (!(await verifyClientOwnership(clientId, companyId)))
+    return { error: "Client introuvable." };
+
   await prisma.project.update({
     where: { id: projectId },
-    data: { title, description, status: status as any, clientId, deadline },
+    data: { title, description, status, clientId, deadline },
   });
 
   revalidatePath(`/${companyId}/projects`);
