@@ -48,7 +48,9 @@ export function formatDeadline(deadline: Date | string | null): string | null {
 
 export function isOverdue(deadline: Date | string | null): boolean {
   if (!deadline) return false;
-  return new Date(deadline) < new Date();
+  const d = new Date(deadline);
+  if (isNaN(d.getTime())) return false;
+  return d < new Date();
 }
 
 /** Format a Date|string for <input type="date"> (YYYY-MM-DD) */
