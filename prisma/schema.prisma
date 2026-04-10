@@ -28,6 +28,8 @@ model Client {
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 
+  projects Project[]
+
   @@index([companyId])
 }
 
@@ -44,6 +46,25 @@ enum Role {
 enum AccessLevel {
   READ
   WRITE
+}
+
+enum ProjectStatus {
+  BACKLOG
+  IN_PROGRESS
+  REVIEW
+  DONE
+}
+
+enum TaskStatus {
+  TODO
+  DOING
+  DONE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
 }
 
 // ─── CORE MODELS ───────────────────────────────────────
@@ -75,6 +96,7 @@ model Company {
   clients      Client[]
   vaultFolders VaultFolder[]
   vaultItems   VaultItem[]
+  projects     Project[]
 }
 
 model CompanyMember {
@@ -184,4 +206,39 @@ model VaultAccess {
   @@index([memberId])
   @@index([itemId])
   @@index([folderId])
+}
+
+// ─── PROJECTS ──────────────────────────────────────────
+
+model Project {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  status      ProjectStatus @default(BACKLOG)
+  clientId    String?
+  client      Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  companyId   String
+  company     Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  deadline    DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  tasks       Task[]
+
+  @@index([companyId])
+  @@index([clientId])
+}
+
+model Task {
+  id        String     @id @default(cuid())
+  title     String
+  status    TaskStatus @default(TODO)
+  priority  Priority   @default(MEDIUM)
+  deadline  DateTime?
+  projectId String
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([projectId])
 }
