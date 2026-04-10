@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, Settings, UsersRound, LogOut, Building2, Lock } from "lucide-react";
+import { LayoutDashboard, Settings, UsersRound, LogOut, Building2, Lock, FolderKanban } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -18,6 +18,7 @@ export function AppSidebar({ companyId, companyName, userEmail }: AppSidebarProp
   const NAV_ITEMS = [
     { href: `/${companyId}/dashboard`, label: "Dashboard",   icon: LayoutDashboard },
     { href: `/${companyId}/clients`,   label: "Clients",     icon: UsersRound },
+    { href: `/${companyId}/projects`,  label: "Projets",     icon: FolderKanban },
     { href: `/${companyId}/vault`,     label: "Coffre-fort", icon: Lock },
     { href: `/${companyId}/settings`,  label: "Paramètres",  icon: Settings },
   ];
