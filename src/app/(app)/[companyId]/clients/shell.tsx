@@ -1,10 +1,19 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Client, ClientStatus } from "@prisma/client";
 import { ClientModal } from "./client-modal";
-import { Plus, UserRound, Building2, Mail, CheckCircle2 } from "lucide-react";
+import {
+  Plus,
+  UserRound,
+  Building2,
+  Mail,
+  CheckCircle2,
+  Briefcase,
+  ArrowUpDown,
+  Search
+} from "lucide-react";
 
 // ─── Status config ──────────────────────────────────────
 
@@ -12,9 +21,9 @@ const STATUS_CONFIG: Record<
   ClientStatus,
   { label: string; dot: string; badge: string }
 > = {
-  LEAD:    { label: "Lead",   dot: "bg-sky-400",     badge: "text-sky-400    bg-sky-500/10    border border-sky-500/20"    },
-  ACTIF:   { label: "Actif",  dot: "bg-emerald-400", badge: "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" },
-  INACTIF: { label: "Inactif",dot: "bg-gray-500",    badge: "text-gray-500   bg-gray-500/10   border border-gray-500/20"   },
+  LEAD: { label: "Lead", dot: "bg-sky-400", badge: "text-sky-400    bg-sky-500/10    border border-sky-500/20" },
+  ACTIF: { label: "Actif", dot: "bg-emerald-400", badge: "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" },
+  INACTIF: { label: "Inactif", dot: "bg-gray-500", badge: "text-gray-500   bg-gray-500/10   border border-gray-500/20" },
 };
 
 function StatusBadge({ status }: { status: ClientStatus }) {
@@ -57,7 +66,7 @@ function Toast({ message, onDismiss }: { message: string; onDismiss: () => void 
       </div>
       <div>
         <p className="text-sm font-semibold text-white">{message}</p>
-        <p className="text-xs text-gray-500 mt-0.5">Client ajouté avec succès.</p>
+        <p className="text-xs text-gray-500 mt-0.5">Données mises à jour.</p>
       </div>
     </motion.div>
   );
@@ -65,9 +74,13 @@ function Toast({ message, onDismiss }: { message: string; onDismiss: () => void 
 
 // ─── Shell ──────────────────────────────────────────────
 
-export default function ClientsShell({ clients, companyId }: { clients: Client[]; companyId: string }) {
+export default function ClientsShell({ clients, companyId }: { clients: any[]; companyId: string }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+
+  // États pour le tri et le filtre
+  const [searchProfession, setSearchProfession] = useState("");
+  const [isSorted, setIsSorted] = useState(false);
 
   const handleSuccess = useCallback((name: string) => {
     setToast(name);
@@ -75,14 +88,31 @@ export default function ClientsShell({ clients, companyId }: { clients: Client[]
 
   const dismissToast = useCallback(() => setToast(null), []);
 
+  // Logique de tri et filtrage
+  const filteredClients = useMemo(() => {
+    let result = [...clients];
+
+    // 1. Filtre par métier
+    if (searchProfession) {
+      result = result.filter(c =>
+        c.profession?.toLowerCase().includes(searchProfession.toLowerCase())
+      );
+    }
+
+    // 2. Tri par métier (A-Z)
+    if (isSorted) {
+      result.sort((a, b) => (a.profession || "").localeCompare(b.profession || ""));
+    }
+
+    return result;
+  }, [clients, searchProfession, isSorted]);
+
   return (
     <>
-      {/* Global toast */}
       <AnimatePresence>
         {toast && <Toast message={`${toast} ajouté`} onDismiss={dismissToast} />}
       </AnimatePresence>
 
-      {/* Drawer modal */}
       <ClientModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -90,16 +120,14 @@ export default function ClientsShell({ clients, companyId }: { clients: Client[]
         companyId={companyId}
       />
 
-      <div className="p-8 max-w-6xl mx-auto">
+      <div className="p-8 max-w-7xl mx-auto space-y-8">
 
         {/* ── Header ───────────────────────────── */}
-        <div className="flex items-start justify-between mb-8">
+        <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-white">Clients</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-white">CRM Clients</h1>
             <p className="mt-1 text-sm text-gray-500">
-              {clients.length === 0
-                ? "Aucun client pour l'instant."
-                : `${clients.length} client${clients.length > 1 ? "s" : ""} au total`}
+              Gérez vos contacts et triez-les par secteur d'activité.
             </p>
           </div>
 
@@ -112,21 +140,40 @@ export default function ClientsShell({ clients, companyId }: { clients: Client[]
           </button>
         </div>
 
+        {/* ── Filtres & Outils ─────────────────── */}
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white/[0.02] border border-white/[0.05] p-4 rounded-2xl backdrop-blur-sm">
+          <div className="relative w-full sm:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Rechercher un métier..."
+              value={searchProfession}
+              onChange={(e) => setSearchProfession(e.target.value)}
+              className="w-full bg-white/[0.05] border border-white/[0.1] rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder:text-gray-600 focus:border-orange-500/50 outline-none transition-all"
+            />
+          </div>
+
+          <button
+            onClick={() => setIsSorted(!isSorted)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium border transition-all ${isSorted
+                ? 'bg-orange-500/10 border-orange-500/50 text-orange-400'
+                : 'bg-white/[0.05] border-white/[0.1] text-gray-400 hover:text-white'
+              }`}
+          >
+            <ArrowUpDown className="w-3.5 h-3.5" />
+            Trier par métier {isSorted ? "(A-Z)" : ""}
+          </button>
+        </div>
+
         {/* ── Empty state ───────────────────────── */}
-        {clients.length === 0 ? (
+        {filteredClients.length === 0 ? (
           <div className="rounded-2xl border border-white/[0.05] bg-white/[0.015] backdrop-blur-sm p-20 flex flex-col items-center justify-center text-center">
             <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.07] flex items-center justify-center mb-5">
               <UserRound className="w-7 h-7 text-gray-600" />
             </div>
-            <p className="text-sm font-semibold text-gray-300 mb-1.5">Aucun client</p>
+            <p className="text-sm font-semibold text-gray-300 mb-1.5">Aucun résultat</p>
             <p className="text-xs text-gray-600 max-w-xs leading-relaxed">
-              Commencez par ajouter votre premier client ou prospect en cliquant sur{" "}
-              <span
-                className="text-orange-400 cursor-pointer hover:underline"
-                onClick={() => setIsModalOpen(true)}
-              >
-                Nouveau client
-              </span>.
+              Aucun client ne correspond à votre recherche actuelle.
             </p>
           </div>
         ) : (
@@ -134,10 +181,10 @@ export default function ClientsShell({ clients, companyId }: { clients: Client[]
           /* ── Data table ────────────────────── */
           <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] backdrop-blur-md overflow-hidden shadow-xl shadow-black/20">
 
-            {/* Header row */}
-            <div className="grid grid-cols-[2fr_2fr_2fr_130px_110px] gap-4 px-6 py-3.5 border-b border-white/[0.05] bg-white/[0.02]">
-              {["Nom", "Email", "Entreprise", "Statut", "Ajouté le"].map((h) => (
-                <span key={h} className="text-[11px] font-semibold uppercase tracking-widest text-gray-600">
+            {/* Header row - Updated Grid for 6 cols */}
+            <div className="grid grid-cols-[1.5fr_1.8fr_1.5fr_1.5fr_120px_100px] gap-4 px-6 py-3.5 border-b border-white/[0.05] bg-white/[0.02]">
+              {["Nom", "Email", "Entreprise", "Métier", "Statut", "Ajouté le"].map((h) => (
+                <span key={h} className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                   {h}
                 </span>
               ))}
@@ -145,13 +192,13 @@ export default function ClientsShell({ clients, companyId }: { clients: Client[]
 
             {/* Data rows */}
             <div className="divide-y divide-white/[0.04]">
-              {clients.map((client, i) => (
+              {filteredClients.map((client, i) => (
                 <motion.div
                   key={client.id}
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04, duration: 0.2 }}
-                  className="grid grid-cols-[2fr_2fr_2fr_130px_110px] gap-4 px-6 py-4 items-center group hover:bg-white/[0.04] transition-colors duration-100 cursor-default"
+                  transition={{ delay: i * 0.03, duration: 0.2 }}
+                  className="grid grid-cols-[1.5fr_1.8fr_1.5fr_1.5fr_120px_100px] gap-4 px-6 py-4 items-center group hover:bg-white/[0.04] transition-colors duration-100 cursor-default"
                 >
                   {/* Name */}
                   <div className="flex items-center gap-3 min-w-0">
@@ -187,11 +234,25 @@ export default function ClientsShell({ clients, companyId }: { clients: Client[]
                     )}
                   </div>
 
+                  {/* Profession (MÉTIER) - NEW */}
+                  <div className="flex items-center gap-2 min-w-0">
+                    {client.profession ? (
+                      <>
+                        <Briefcase className="w-3.5 h-3.5 text-orange-500/40 shrink-0" />
+                        <span className="text-sm text-gray-300 truncate">{client.profession}</span>
+                      </>
+                    ) : (
+                      <span className="text-[10px] text-gray-700 uppercase italic">Non défini</span>
+                    )}
+                  </div>
+
                   {/* Status badge */}
-                  <StatusBadge status={client.status} />
+                  <div className="flex justify-start">
+                    <StatusBadge status={client.status} />
+                  </div>
 
                   {/* Date */}
-                  <span className="text-xs text-gray-600 tabular-nums">
+                  <span className="text-[11px] text-gray-600 tabular-nums text-right sm:text-left">
                     {formatDate(client.createdAt)}
                   </span>
                 </motion.div>

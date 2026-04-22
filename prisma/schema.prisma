@@ -16,11 +16,12 @@ enum ClientStatus {
 }
 
 model Client {
-  id        String       @id @default(cuid())
-  name      String
-  email     String?
-  company   String?
-  status    ClientStatus @default(LEAD)
+  id         String       @id @default(cuid())
+  name       String
+  email      String?
+  company    String?
+  profession String?      // Ajouté pour le tri par métier
+  status     ClientStatus @default(LEAD)
 
   companyId String
   workspace Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -33,7 +34,7 @@ model Client {
   @@index([companyId])
 }
 
-// ─── RBAC ──────────────────────────────────────────────
+// ─── RBAC & ROLES ──────────────────────────────────────
 
 enum Role {
   FOUNDER
