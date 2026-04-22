@@ -48,6 +48,33 @@ enum AccessLevel {
   WRITE
 }
 
+// ─── INVITATIONS ──────────────────────────────────────
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+}
+
+model Invitation {
+  id        String           @id @default(cuid())
+  email     String
+  role      Role             @default(EMPLOYEE)
+  status    InvitationStatus @default(PENDING)
+  
+  companyId String
+  company   Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  inviterId String
+  inviter   User             @relation("SentInvitations", fields: [inviterId], references: [id])
+
+  createdAt DateTime         @default(now())
+  expiresAt DateTime
+
+  @@unique([email, companyId])
+  @@index([companyId])
+}
+
 // ─── CORE MODELS ───────────────────────────────────────
 
 model User {
@@ -61,9 +88,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  accounts    Account[]
-  sessions    Session[]
-  memberships CompanyMember[]
+  accounts        Account[]
+  sessions        Session[]
+  memberships     CompanyMember[]
+  sentInvitations Invitation[]    @relation("SentInvitations")
 }
 
 model Company {
@@ -78,6 +106,7 @@ model Company {
   vaultFolders VaultFolder[]
   vaultItems   VaultItem[]
   projects     Project[]
+  invitations  Invitation[]
 }
 
 model CompanyMember {
@@ -151,20 +180,20 @@ model VaultFolder {
 }
 
 model VaultItem {
-  id                String        @id @default(cuid())
+  id                String         @id @default(cuid())
   title             String
   username          String?
   encryptedPassword String
   url               String?
   notes             String?
   folderId          String?
-  folder            VaultFolder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  folder            VaultFolder?   @relation(fields: [folderId], references: [id], onDelete: SetNull)
   companyId         String
-  company           Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company           Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
   createdById       String?
   createdBy         CompanyMember? @relation("CreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
 
   accesses VaultAccess[]
 
@@ -223,7 +252,7 @@ model Project {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
-  tasks       Task[]
+  tasks Task[]
 
   @@index([companyId])
   @@index([clientId])
