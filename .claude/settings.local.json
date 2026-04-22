@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(printf 'y\\\\n')",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git --yes)",
+      "Bash(npx create-next-app@latest --version)",
+      "Bash(npx create-next-app@latest --help)",
+      "Bash(npx create-next-app@latest zynth-temp --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --disable-git --yes)",
+      "Bash(mv zynth-temp/AGENTS.md .)",
+      "Bash(mv zynth-temp/CLAUDE.md .)",
+      "Bash(mv zynth-temp/eslint.config.mjs .)",
+      "Bash(mv zynth-temp/next.config.ts .)",
+      "Bash(mv zynth-temp/next-env.d.ts .)",
+      "Bash(mv zynth-temp/.gitignore .)",
+      "Bash(mv zynth-temp/.next .)",
+      "Bash(rm -rf zynth-temp)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)",
+      "Bash(openssl rand:*)",
+      "Bash(git init:*)",
+      "Bash(git:*)",
+      "Bash(npx tsc:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm run:*)",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force\")",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(bash:*)",
+      "Bash(tasklist)",
+      "mcp__ide__getDiagnostics",
+      "Bash(node:*)"
+    ]
+  }
+}

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module Projets — Maquette</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #050505; color: #fff; font-family: -apple-system, 'Inter', sans-serif; padding: 24px; min-height: 100vh; }
+
+  /* ── Header ── */
+  .page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; }
+  .page-title { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+  .page-sub { font-size: 12px; color: #555; margin-top: 3px; }
+  .btn-add { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #f97316; border: none; border-radius: 10px; color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 16px #f9731630; transition: background .15s; }
+  .btn-add:hover { background: #fb923c; }
+
+  /* ── View Switcher ── */
+  .controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .switcher { display: flex; gap: 2px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 10px; padding: 3px; }
+  .sw-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: none; border-radius: 7px; background: transparent; color: #555; font-size: 12px; font-weight: 500; cursor: pointer; transition: all .15s; white-space: nowrap; }
+  .sw-btn svg { width: 13px; height: 13px; }
+  .sw-btn.active { background: rgba(249,115,22,.12); color: #f97316; border: 1px solid rgba(249,115,22,.2); }
+  .sw-btn:hover:not(.active) { color: #aaa; background: rgba(255,255,255,.04); }
+  .stats-row { display: flex; gap: 16px; }
+  .stat { font-size: 11px; color: #555; }
+  .stat span { color: #aaa; font-weight: 600; }
+
+  /* ── Views ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── GRID VIEW ── */
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .project-card { background: rgba(255,255,255,.025); border: 1px solid rgba(255,255,255,.06); border-radius: 16px; padding: 18px; cursor: pointer; transition: all .2s; position: relative; overflow: hidden; }
+  .project-card::before { content: ''; position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; border-radius: 50%; opacity: .06; pointer-events: none; }
+  .project-card.status-in_progress::before { background: #38bdf8; }
+  .project-card.status-backlog::before { background: #f97316; }
+  .project-card.status-done::before { background: #4ade80; }
+  .project-card.status-review::before { background: #a78bfa; }
+  .project-card:hover { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.1); transform: translateY(-1px); }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+  .card-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .status-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 3px 7px; border-radius: 20px; }
+  .badge-backlog    { color: #f97316; background: rgba(249,115,22,.1);  border: 1px solid rgba(249,115,22,.2);  }
+  .badge-in_progress{ color: #38bdf8; background: rgba(56,189,248,.1);  border: 1px solid rgba(56,189,248,.2);  }
+  .badge-review     { color: #a78bfa; background: rgba(167,139,250,.1); border: 1px solid rgba(167,139,250,.2); }
+  .badge-done       { color: #4ade80; background: rgba(74,222,128,.1);  border: 1px solid rgba(74,222,128,.2);  }
+  .card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; line-height: 1.3; }
+  .card-client { font-size: 11px; color: #555; margin-bottom: 14px; }
+  .progress-wrap { margin-bottom: 12px; }
+  .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .progress-label { font-size: 10px; color: #555; }
+  .progress-pct { font-size: 11px; font-weight: 700; color: #aaa; }
+  .progress-bar { height: 3px; background: rgba(255,255,255,.06); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 99px; transition: width .5s ease; }
+  .fill-backlog     { background: #f97316; }
+  .fill-in_progress { background: #38bdf8; }
+  .fill-review      { background: #a78bfa; }
+  .fill-done        { background: #4ade80; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .task-count { font-size: 10px; color: #555; display: flex; align-items: center; gap: 4px; }
+  .deadline { font-size: 10px; color: #555; }
+  .deadline.soon { color: #f87171; }
+
+  /* ── PRIORITY DOTS ── */
+  .prio { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .prio-high   { background: #f87171; }
+  .prio-medium { background: #fbbf24; }
+  .prio-low    { background: #6b7280; }
+
+  /* ── LIST VIEW ── */
+  .list-table { width: 100%; border-collapse: collapse; }
+  .list-header { display: grid; grid-template-columns: 2fr 1fr 1fr 100px 90px; gap: 12px; padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,.04); }
+  .list-header span { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: #444; }
+  .list-row { display: grid; grid-template-columns: 2fr 1fr 1fr 100px 90px; gap: 12px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.03); align-items: center; cursor: pointer; border-radius: 10px; transition: background .1s; }
+  .list-row:hover { background: rgba(255,255,255,.025); }
+  .list-title { display: flex; align-items: center; gap: 10px; }
+  .list-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .list-name { font-size: 13px; font-weight: 500; }
+  .list-client { font-size: 11px; color: #555; margin-top: 1px; }
+  .list-progress { display: flex; align-items: center; gap: 8px; }
+  .list-bar { flex: 1; height: 3px; background: rgba(255,255,255,.06); border-radius: 99px; overflow: hidden; }
+  .list-pct { font-size: 10px; color: #555; width: 28px; text-align: right; flex-shrink: 0; }
+
+  /* ── KANBAN VIEW ── */
+  .kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .kanban-col { background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.05); border-radius: 14px; padding: 14px; }
+  .col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .col-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; }
+  .col-count { font-size: 10px; color: #555; background: rgba(255,255,255,.05); padding: 2px 7px; border-radius: 20px; }
+  .kanban-card { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 10px; padding: 12px; margin-bottom: 8px; cursor: pointer; transition: all .15s; }
+  .kanban-card:hover { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.1); }
+  .kanban-card-title { font-size: 12px; font-weight: 500; margin-bottom: 8px; line-height: 1.3; }
+  .kanban-card-meta { display: flex; align-items: center; justify-content: space-between; }
+  .kanban-tasks { font-size: 10px; color: #555; }
+  .kanban-prog { display: flex; align-items: center; gap: 6px; }
+  .kanban-bar { width: 50px; height: 2px; background: rgba(255,255,255,.06); border-radius: 99px; overflow: hidden; }
+
+  /* ── NEW PROJECT CARD ── */
+  .new-card { border: 1px dashed rgba(255,255,255,.08); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 170px; cursor: pointer; transition: all .2s; color: #333; gap: 8px; }
+  .new-card:hover { border-color: rgba(249,115,22,.3); color: #f97316; background: rgba(249,115,22,.03); }
+  .new-card svg { width: 20px; height: 20px; }
+  .new-card span { font-size: 12px; font-weight: 500; }
+
+  /* ── ADD TASK ROW (list) ── */
+  .add-row { display: flex; align-items: center; gap: 8px; padding: 12px 16px; color: #333; font-size: 12px; cursor: pointer; border-radius: 10px; transition: all .15s; }
+  .add-row:hover { color: #f97316; background: rgba(249,115,22,.04); }
+
+  /* ── ADD KANBAN CARD ── */
+  .add-kanban { display: flex; align-items: center; gap: 6px; padding: 8px; color: #333; font-size: 11px; cursor: pointer; border-radius: 8px; transition: all .15s; border: 1px dashed transparent; }
+  .add-kanban:hover { color: #f97316; border-color: rgba(249,115,22,.2); background: rgba(249,115,22,.04); }
+</style>
+</head>
+<body>
+
+<!-- ── Page header ── -->
+<div class="page-header">
+  <div>
+    <div class="page-title">Projets</div>
+    <div class="page-sub">6 projets · workspace Acme Studio</div>
+  </div>
+  <button class="btn-add">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+    Nouveau projet
+  </button>
+</div>
+
+<!-- ── Controls ── -->
+<div class="controls">
+  <div class="switcher">
+    <button class="sw-btn" id="btn-kanban" onclick="setView('kanban')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="2" width="4" height="12" rx="1"/><rect x="6" y="2" width="4" height="8" rx="1"/><rect x="11" y="2" width="4" height="10" rx="1"/></svg>
+      Kanban
+    </button>
+    <button class="sw-btn" id="btn-list" onclick="setView('list')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 4h12M2 8h12M2 12h8"/></svg>
+      Liste
+    </button>
+    <button class="sw-btn active" id="btn-grid" onclick="setView('grid')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+      Grille
+    </button>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><span>3</span> en cours</div>
+    <div class="stat"><span>2</span> backlog</div>
+    <div class="stat"><span>1</span> terminé</div>
+  </div>
+</div>
+
+<!-- ═══════════════ GRID VIEW ═══════════════ -->
+<div class="view active" id="view-grid">
+  <div class="projects-grid">
+
+    <div class="project-card status-in_progress">
+      <div class="card-top">
+        <div class="card-icon" style="background:rgba(56,189,248,.1)">🌐</div>
+        <span class="status-badge badge-in_progress">En cours</span>
+      </div>
+      <div class="card-title">Refonte site web</div>
+      <div class="card-client">Acme Corp</div>
+      <div class="progress-wrap">
+        <div class="progress-header">
+          <span class="progress-label">Progression</span>
+          <span class="progress-pct">60%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill fill-in_progress" style="width:60%"></div></div>
+      </div>
+      <div class="card-footer">
+        <span class="task-count">
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#555" stroke-width="2"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 7l2 2 4-4"/></svg>
+          3 / 5 tâches
+        </span>
+        <span class="deadline soon">⏰ 15 avr.</span>
+      </div>
+    </div>
+
+    <div class="project-card status-in_progress">
+      <div class="card-top">
+        <div class="card-icon" style="background:rgba(167,139,250,.1)">⚙️</div>
+        <span class="status-badge badge-in_progress">En cours</span>
+      </div>
+      <div class="card-title">API v2 — Refactoring</div>
+      <div class="card-client">Interne</div>
+      <div class="progress-wrap">
+        <div class="progress-header">
+          <span class="progress-label">Progression</span>
+          <span class="progress-pct">20%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill fill-in_progress" style="width:20%"></div></div>
+      </div>
+      <div class="card-footer">
+        <span class="task-count">
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#555" stroke-width="2"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 7l2 2 4-4"/></svg>
+          1 / 7 tâches
+        </span>
+        <span class="deadline">Sans deadline</span>
+      </div>
+    </div>
+
+    <div class="project-card status-review">
+      <div class="card-top">
+        <div class="card-icon" style="background:rgba(167,139,250,.1)">🔒</div>
+        <span class="status-badge badge-review">Review</span>
+      </div>
+      <div class="card-title">Audit sécurité</div>
+      <div class="card-client">Beta Systems</div>
+      <div class="progress-wrap">
+        <div class="progress-header">
+          <span class="progress-label">Progression</span>
+          <span class="progress-pct">80%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill fill-review" style="width:80%"></div></div>
+      </div>
+      <div class="card-footer">
+        <span class="task-count">
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#555" stroke-width="2"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 7l2 2 4-4"/></svg>
+          4 / 5 tâches
+        </span>
+        <span class="deadline">28 avr.</span>
+      </div>
+    </div>
+
+    <div class="project-card status-backlog">
+      <div class="card-top">
+        <div class="card-icon" style="background:rgba(249,115,22,.1)">📱</div>
+        <span class="status-badge badge-backlog">Backlog</span>
+      </div>
+      <div class="card-title">App mobile v1</div>
+      <div class="card-client">Acme Corp</div>
+      <div class="progress-wrap">
+        <div class="progress-header">
+          <span class="progress-label">Progression</span>
+          <span class="progress-pct">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill fill-backlog" style="width:0%"></div></div>
+      </div>
+      <div class="card-footer">
+        <span class="task-count">
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#555" stroke-width="2"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 7l2 2 4-4"/></svg>
+          0 / 4 tâches
+        </span>
+        <span class="deadline">1 juin</span>
+      </div>
+    </div>
+
+    <div class="project-card status-done">
+      <div class="card-top">
+        <div class="card-icon" style="background:rgba(74,222,128,.1)">✅</div>
+        <span class="status-badge badge-done">Terminé</span>
+      </div>
+      <div class="card-title">Onboarding client V2</div>
+      <div class="card-client">Interne</div>
+      <div class="progress-wrap">
+        <div class="progress-header">
+          <span class="progress-label">Progression</span>
+          <span class="progress-pct">100%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+      </div>
+      <div class="card-footer">
+        <span class="task-count">
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#555" stroke-width="2"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 7l2 2 4-4"/></svg>
+          6 / 6 tâches
+        </span>
+        <span class="deadline" style="color:#4ade80">✓ Livré</span>
+      </div>
+    </div>
+
+    <div class="new-card">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3v10M3 8h10"/></svg>
+      <span>Nouveau projet</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ LIST VIEW ═══════════════ -->
+<div class="view" id="view-list">
+  <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:14px;overflow:hidden">
+    <div class="list-header">
+      <span>Projet</span>
+      <span>Client</span>
+      <span>Progression</span>
+      <span>Statut</span>
+      <span>Deadline</span>
+    </div>
+
+    <div class="list-row">
+      <div class="list-title">
+        <div class="list-icon" style="background:rgba(56,189,248,.1)">🌐</div>
+        <div>
+          <div class="list-name">Refonte site web</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#555">Acme Corp</div>
+      <div class="list-progress">
+        <div class="list-bar"><div class="progress-fill fill-in_progress" style="width:60%;height:100%"></div></div>
+        <span class="list-pct">60%</span>
+      </div>
+      <span class="status-badge badge-in_progress">En cours</span>
+      <span style="font-size:11px;color:#f87171">15 avr.</span>
+    </div>
+
+    <div class="list-row">
+      <div class="list-title">
+        <div class="list-icon" style="background:rgba(167,139,250,.1)">⚙️</div>
+        <div><div class="list-name">API v2 — Refactoring</div></div>
+      </div>
+      <div style="font-size:12px;color:#555">Interne</div>
+      <div class="list-progress">
+        <div class="list-bar"><div class="progress-fill fill-in_progress" style="width:20%;height:100%"></div></div>
+        <span class="list-pct">20%</span>
+      </div>
+      <span class="status-badge badge-in_progress">En cours</span>
+      <span style="font-size:11px;color:#555">—</span>
+    </div>
+
+    <div class="list-row">
+      <div class="list-title">
+        <div class="list-icon" style="background:rgba(167,139,250,.1)">🔒</div>
+        <div><div class="list-name">Audit sécurité</div></div>
+      </div>
+      <div style="font-size:12px;color:#555">Beta Systems</div>
+      <div class="list-progress">
+        <div class="list-bar"><div class="progress-fill fill-review" style="width:80%;height:100%"></div></div>
+        <span class="list-pct">80%</span>
+      </div>
+      <span class="status-badge badge-review">Review</span>
+      <span style="font-size:11px;color:#aaa">28 avr.</span>
+    </div>
+
+    <div class="list-row">
+      <div class="list-title">
+        <div class="list-icon" style="background:rgba(249,115,22,.1)">📱</div>
+        <div><div class="list-name">App mobile v1</div></div>
+      </div>
+      <div style="font-size:12px;color:#555">Acme Corp</div>
+      <div class="list-progress">
+        <div class="list-bar"><div class="progress-fill fill-backlog" style="width:0%;height:100%"></div></div>
+        <span class="list-pct">0%</span>
+      </div>
+      <span class="status-badge badge-backlog">Backlog</span>
+      <span style="font-size:11px;color:#aaa">1 juin</span>
+    </div>
+
+    <div class="list-row">
+      <div class="list-title">
+        <div class="list-icon" style="background:rgba(74,222,128,.1)">✅</div>
+        <div><div class="list-name">Onboarding client V2</div></div>
+      </div>
+      <div style="font-size:12px;color:#555">Interne</div>
+      <div class="list-progress">
+        <div class="list-bar"><div class="progress-fill fill-done" style="width:100%;height:100%"></div></div>
+        <span class="list-pct">100%</span>
+      </div>
+      <span class="status-badge badge-done">Terminé</span>
+      <span style="font-size:11px;color:#4ade80">✓ Livré</span>
+    </div>
+
+    <div class="add-row">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+      Nouveau projet
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ KANBAN VIEW ═══════════════ -->
+<div class="view" id="view-kanban">
+  <div class="kanban-board">
+
+    <div class="kanban-col">
+      <div class="col-header">
+        <span class="col-title" style="color:#f97316">Backlog</span>
+        <span class="col-count">2</span>
+      </div>
+      <div class="kanban-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+          <div class="kanban-card-title">App mobile v1</div>
+          <span class="prio prio-medium" style="margin-top:3px;flex-shrink:0"></span>
+        </div>
+        <div class="kanban-card-meta">
+          <span class="kanban-tasks">0/4 tâches</span>
+          <div class="kanban-prog">
+            <div class="kanban-bar"><div class="progress-fill fill-backlog" style="width:0%;height:100%"></div></div>
+            <span style="font-size:9px;color:#555">0%</span>
+          </div>
+        </div>
+        <div style="font-size:10px;color:#555;margin-top:6px">Acme Corp · 1 juin</div>
+      </div>
+      <div class="kanban-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+          <div class="kanban-card-title">Dashboard analytics</div>
+          <span class="prio prio-low" style="margin-top:3px;flex-shrink:0"></span>
+        </div>
+        <div class="kanban-card-meta">
+          <span class="kanban-tasks">0/3 tâches</span>
+          <div class="kanban-prog">
+            <div class="kanban-bar"><div class="progress-fill fill-backlog" style="width:0%;height:100%"></div></div>
+            <span style="font-size:9px;color:#555">0%</span>
+          </div>
+        </div>
+        <div style="font-size:10px;color:#555;margin-top:6px">Interne</div>
+      </div>
+      <div class="add-kanban">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+        Ajouter
+      </div>
+    </div>
+
+    <div class="kanban-col">
+      <div class="col-header">
+        <span class="col-title" style="color:#38bdf8">En cours</span>
+        <span class="col-count">2</span>
+      </div>
+      <div class="kanban-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+          <div class="kanban-card-title">Refonte site web</div>
+          <span class="prio prio-high" style="margin-top:3px;flex-shrink:0"></span>
+        </div>
+        <div class="kanban-card-meta">
+          <span class="kanban-tasks">3/5 tâches</span>
+          <div class="kanban-prog">
+            <div class="kanban-bar"><div class="progress-fill fill-in_progress" style="width:60%;height:100%"></div></div>
+            <span style="font-size:9px;color:#555">60%</span>
+          </div>
+        </div>
+        <div style="font-size:10px;color:#f87171;margin-top:6px">Acme Corp · ⏰ 15 avr.</div>
+      </div>
+      <div class="kanban-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+          <div class="kanban-card-title">API v2 — Refactoring</div>
+          <span class="prio prio-medium" style="margin-top:3px;flex-shrink:0"></span>
+        </div>
+        <div class="kanban-card-meta">
+          <span class="kanban-tasks">1/7 tâches</span>
+          <div class="kanban-prog">
+            <div class="kanban-bar"><div class="progress-fill fill-in_progress" style="width:20%;height:100%"></div></div>
+            <span style="font-size:9px;color:#555">20%</span>
+          </div>
+        </div>
+        <div style="font-size:10px;color:#555;margin-top:6px">Interne</div>
+      </div>
+      <div class="add-kanban">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+        Ajouter
+      </div>
+    </div>
+
+    <div class="kanban-col">
+      <div class="col-header">
+        <span class="col-title" style="color:#a78bfa">Review</span>
+        <span class="col-count">1</span>
+      </div>
+      <div class="kanban-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+          <div class="kanban-card-title">Audit sécurité</div>
+          <span class="prio prio-high" style="margin-top:3px;flex-shrink:0"></span>
+        </div>
+        <div class="kanban-card-meta">
+          <span class="kanban-tasks">4/5 tâches</span>
+          <div class="kanban-prog">
+            <div class="kanban-bar"><div class="progress-fill fill-review" style="width:80%;height:100%"></div></div>
+            <span style="font-size:9px;color:#555">80%</span>
+          </div>
+        </div>
+        <div style="font-size:10px;color:#aaa;margin-top:6px">Beta Systems · 28 avr.</div>
+      </div>
+      <div class="add-kanban">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+        Ajouter
+      </div>
+    </div>
+
+    <div class="kanban-col">
+      <div class="col-header">
+        <span class="col-title" style="color:#4ade80">Terminé</span>
+        <span class="col-count">1</span>
+      </div>
+      <div class="kanban-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+          <div class="kanban-card-title">Onboarding client V2</div>
+          <span class="prio prio-low" style="margin-top:3px;flex-shrink:0"></span>
+        </div>
+        <div class="kanban-card-meta">
+          <span class="kanban-tasks">6/6 tâches</span>
+          <div class="kanban-prog">
+            <div class="kanban-bar"><div class="progress-fill fill-done" style="width:100%;height:100%"></div></div>
+            <span style="font-size:9px;color:#4ade80">100%</span>
+          </div>
+        </div>
+        <div style="font-size:10px;color:#4ade80;margin-top:6px">Interne · ✓ Livré</div>
+      </div>
+      <div class="add-kanban">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+        Ajouter
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Legend ── -->
+<div style="margin-top:28px;padding-top:20px;border-top:1px solid rgba(255,255,255,.05);display:flex;gap:24px;flex-wrap:wrap">
+  <div style="font-size:11px;color:#555;font-weight:600;text-transform:uppercase;letter-spacing:.05em;align-self:center">Priorité :</div>
+  <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#888"><span class="prio prio-high"></span> Haute — rouge</div>
+  <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#888"><span class="prio prio-medium"></span> Moyenne — ambre</div>
+  <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#888"><span class="prio prio-low"></span> Basse — gris</div>
+  <div style="margin-left:24px;font-size:11px;color:#555;font-weight:600;text-transform:uppercase;letter-spacing:.05em;align-self:center">Barre de progression :</div>
+  <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#888"><div style="width:24px;height:3px;background:#38bdf8;border-radius:99px"></div> En cours — sky</div>
+  <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#888"><div style="width:24px;height:3px;background:#a78bfa;border-radius:99px"></div> Review — violet</div>
+  <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#888"><div style="width:24px;height:3px;background:#4ade80;border-radius:99px"></div> Terminé — vert</div>
+</div>
+
+<script>
+function setView(v) {
+  ['grid','list','kanban'].forEach(id => {
+    document.getElementById('view-' + id).classList.toggle('active', id === v);
+    document.getElementById('btn-' + id).classList.toggle('active', id === v);
+  });
+}
+</script>
+</body>
+</html>

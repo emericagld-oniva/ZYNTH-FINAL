@@ -178,14 +178,14 @@ export default function PasswordGenerator({ onUse }: PasswordGeneratorProps) {
         <input
           type="range"
           min={8}
-          max={32}
+          max={128}
           value={length}
           onChange={(e) => setLength(Number(e.target.value))}
           className="w-full h-1 appearance-none rounded-full bg-white/[0.08] cursor-pointer accent-orange-500"
         />
         <div className="flex justify-between">
           <span className="text-[10px] text-gray-700">8</span>
-          <span className="text-[10px] text-gray-700">32</span>
+          <span className="text-[10px] text-gray-700">128</span>
         </div>
       </div>
 

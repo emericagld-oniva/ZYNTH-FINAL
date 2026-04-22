@@ -1,0 +1,98 @@
+<h2>Module Projets — Quel layout principal ?</h2>
+<p class="subtitle">Comment afficher la liste des projets d'un workspace ?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="kanban" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="display:flex;gap:8px;padding:16px;background:#0a0a0a;border-radius:8px;min-height:160px">
+        <div style="flex:1;background:#111;border-radius:6px;border:1px solid #222;padding:10px">
+          <div style="font-size:10px;color:#f97316;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">À faire</div>
+          <div style="background:#1a1a1a;border-radius:4px;padding:6px;margin-bottom:4px;font-size:10px;color:#ccc">Refonte landing page</div>
+          <div style="background:#1a1a1a;border-radius:4px;padding:6px;font-size:10px;color:#ccc">Onboarding client</div>
+        </div>
+        <div style="flex:1;background:#111;border-radius:6px;border:1px solid #222;padding:10px">
+          <div style="font-size:10px;color:#38bdf8;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">En cours</div>
+          <div style="background:#1a1a1a;border-radius:4px;padding:6px;margin-bottom:4px;font-size:10px;color:#ccc">API v2</div>
+        </div>
+        <div style="flex:1;background:#111;border-radius:6px;border:1px solid #222;padding:10px">
+          <div style="font-size:10px;color:#4ade80;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Terminé</div>
+          <div style="background:#1a1a1a;border-radius:4px;padding:6px;font-size:10px;color:#ccc">Audit sécu</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Kanban board</h3>
+      <p>Colonnes par statut (Backlog / En cours / Review / Terminé). Vue classique orientée flux de travail. Drag & drop entre colonnes.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="list" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0a0a0a;border-radius:8px;padding:16px;min-height:160px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="font-size:11px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Projets actifs</span>
+          <span style="font-size:10px;color:#f97316;background:#f9731610;padding:3px 8px;border-radius:20px">+ Nouveau</span>
+        </div>
+        <div style="background:#111;border-radius:6px;border:1px solid #1e1e1e;padding:10px 12px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:11px;color:#fff;font-weight:500">Refonte site web</div>
+            <div style="font-size:10px;color:#555;margin-top:2px">3 tâches · Deadline 15 avr.</div>
+          </div>
+          <span style="font-size:9px;color:#38bdf8;background:#38bdf810;padding:2px 6px;border-radius:4px;border:1px solid #38bdf820">EN COURS</span>
+        </div>
+        <div style="background:#111;border-radius:6px;border:1px solid #1e1e1e;padding:10px 12px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:11px;color:#fff;font-weight:500">API v2</div>
+            <div style="font-size:10px;color:#555;margin-top:2px">7 tâches · Pas de deadline</div>
+          </div>
+          <span style="font-size:9px;color:#f97316;background:#f9731610;padding:2px 6px;border-radius:4px;border:1px solid #f9731620">BACKLOG</span>
+        </div>
+        <div style="background:#111;border-radius:6px;border:1px solid #1e1e1e;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:11px;color:#fff;font-weight:500">Audit sécurité</div>
+            <div style="font-size:10px;color:#555;margin-top:2px">5 tâches · Terminé</div>
+          </div>
+          <span style="font-size:9px;color:#4ade80;background:#4ade8010;padding:2px 6px;border-radius:4px;border:1px solid #4ade8020">TERMINÉ</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Liste de projets</h3>
+      <p>Tableau compact : un projet par ligne, statut coloré, compteur de tâches, deadline. Clic sur un projet → vue détail avec son propre kanban interne.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="grid" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0a0a0a;border-radius:8px;padding:16px;min-height:160px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:#111;border-radius:6px;border:1px solid #1e1e1e;padding:10px">
+          <div style="font-size:10px;color:#fff;font-weight:600;margin-bottom:4px">Refonte site</div>
+          <div style="font-size:9px;color:#555;margin-bottom:8px">3 tâches</div>
+          <div style="height:3px;background:#1e1e1e;border-radius:99px;overflow:hidden"><div style="width:60%;height:100%;background:#38bdf8;border-radius:99px"></div></div>
+          <div style="font-size:9px;color:#555;margin-top:4px">60% · 15 avr.</div>
+        </div>
+        <div style="background:#111;border-radius:6px;border:1px solid #1e1e1e;padding:10px">
+          <div style="font-size:10px;color:#fff;font-weight:600;margin-bottom:4px">API v2</div>
+          <div style="font-size:9px;color:#555;margin-bottom:8px">7 tâches</div>
+          <div style="height:3px;background:#1e1e1e;border-radius:99px;overflow:hidden"><div style="width:20%;height:100%;background:#f97316;border-radius:99px"></div></div>
+          <div style="font-size:9px;color:#555;margin-top:4px">20% · —</div>
+        </div>
+        <div style="background:#111;border-radius:6px;border:1px solid #1e1e1e;padding:10px">
+          <div style="font-size:10px;color:#fff;font-weight:600;margin-bottom:4px">Audit sécu</div>
+          <div style="font-size:9px;color:#555;margin-bottom:8px">5 tâches</div>
+          <div style="height:3px;background:#1e1e1e;border-radius:99px;overflow:hidden"><div style="width:100%;height:100%;background:#4ade80;border-radius:99px"></div></div>
+          <div style="font-size:9px;color:#555;margin-top:4px">100% · Terminé</div>
+        </div>
+        <div style="background:#111;border-radius:6px;border:1px solid #222;border-style:dashed;padding:10px;display:flex;align-items:center;justify-content:center">
+          <span style="font-size:18px;color:#333">+</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Grille de cartes</h3>
+      <p>Cartes projet avec barre de progression, compteur de tâches, deadline. Vue synthétique type "portfolio". Clic → vue détail avec tâches.</p>
+    </div>
+  </div>
+
+</div>

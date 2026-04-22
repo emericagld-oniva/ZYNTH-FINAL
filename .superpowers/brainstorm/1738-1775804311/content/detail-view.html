@@ -1,0 +1,119 @@
+<h2>Vue détail d'un projet</h2>
+<p class="subtitle">Quand on clique sur un projet dans la liste, qu'est-ce qu'on voit ?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="kanban-detail" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0a0a0a;border-radius:8px;padding:12px;min-height:170px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div>
+            <div style="font-size:11px;color:#fff;font-weight:600">Refonte site web</div>
+            <div style="font-size:9px;color:#555">Client : Acme Corp · Deadline : 15 avr.</div>
+          </div>
+          <span style="font-size:9px;color:#38bdf8;background:#38bdf810;padding:2px 6px;border-radius:4px;border:1px solid #38bdf820">EN COURS</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <div style="flex:1;background:#111;border-radius:5px;border:1px solid #1e1e1e;padding:8px">
+            <div style="font-size:9px;color:#f97316;font-weight:700;margin-bottom:6px">BACKLOG</div>
+            <div style="background:#1a1a1a;border-radius:3px;padding:4px 6px;margin-bottom:3px;font-size:9px;color:#aaa">Maquettes</div>
+            <div style="background:#1a1a1a;border-radius:3px;padding:4px 6px;font-size:9px;color:#aaa">Intégration</div>
+          </div>
+          <div style="flex:1;background:#111;border-radius:5px;border:1px solid #1e1e1e;padding:8px">
+            <div style="font-size:9px;color:#38bdf8;font-weight:700;margin-bottom:6px">EN COURS</div>
+            <div style="background:#1a1a1a;border-radius:3px;padding:4px 6px;font-size:9px;color:#aaa">Dev frontend</div>
+          </div>
+          <div style="flex:1;background:#111;border-radius:5px;border:1px solid #1e1e1e;padding:8px">
+            <div style="font-size:9px;color:#4ade80;font-weight:700;margin-bottom:6px">TERMINÉ</div>
+            <div style="background:#1a1a1a;border-radius:3px;padding:4px 6px;font-size:9px;color:#aaa">Brief client</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Kanban interne</h3>
+      <p>Chaque projet a son propre board kanban (Backlog / En cours / Review / Terminé). Vue orientée workflow, idéale pour suivre l'avancement des tâches.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="split" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0a0a0a;border-radius:8px;padding:12px;min-height:170px;display:flex;gap:8px">
+        <div style="width:38%;background:#111;border-radius:5px;border:1px solid #1e1e1e;padding:10px">
+          <div style="font-size:10px;color:#fff;font-weight:600;margin-bottom:4px">Refonte site web</div>
+          <div style="font-size:9px;color:#555;margin-bottom:8px">Acme Corp</div>
+          <div style="height:2px;background:#1e1e1e;border-radius:99px;overflow:hidden;margin-bottom:4px"><div style="width:60%;height:100%;background:#38bdf8"></div></div>
+          <div style="font-size:9px;color:#555;margin-bottom:10px">60% terminé</div>
+          <div style="font-size:9px;color:#888;margin-bottom:3px">📅 Deadline : 15 avr.</div>
+          <div style="font-size:9px;color:#888;margin-bottom:3px">🏷 EN COURS</div>
+          <div style="font-size:9px;color:#888">📝 Notes projet…</div>
+        </div>
+        <div style="flex:1;background:#111;border-radius:5px;border:1px solid #1e1e1e;padding:10px">
+          <div style="font-size:9px;color:#666;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Tâches</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
+            <div style="width:10px;height:10px;border-radius:2px;background:#4ade8030;border:1px solid #4ade8060"></div>
+            <span style="font-size:9px;color:#aaa">Brief client</span>
+            <span style="margin-left:auto;font-size:8px;color:#4ade80">Terminé</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
+            <div style="width:10px;height:10px;border-radius:2px;background:#38bdf830;border:1px solid #38bdf860"></div>
+            <span style="font-size:9px;color:#aaa">Dev frontend</span>
+            <span style="margin-left:auto;font-size:8px;color:#38bdf8">En cours</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px">
+            <div style="width:10px;height:10px;border-radius:2px;background:#33333350;border:1px solid #444"></div>
+            <span style="font-size:9px;color:#aaa">Maquettes</span>
+            <span style="margin-left:auto;font-size:8px;color:#555">Backlog</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Vue split : infos + liste de tâches</h3>
+      <p>Panneau gauche : métadonnées du projet (client, deadline, progression, notes). Panneau droit : liste de tâches avec statut. Simple et lisible.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="page" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0a0a0a;border-radius:8px;padding:12px;min-height:170px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+          <span style="font-size:9px;color:#555">← Projets</span>
+          <span style="font-size:9px;color:#555">/</span>
+          <span style="font-size:10px;color:#fff;font-weight:600">Refonte site web</span>
+          <span style="margin-left:auto;font-size:9px;color:#38bdf8;background:#38bdf810;padding:2px 6px;border-radius:4px">EN COURS</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+          <div style="background:#111;border-radius:4px;padding:6px;text-align:center">
+            <div style="font-size:14px;color:#fff;font-weight:700">3</div>
+            <div style="font-size:8px;color:#555">tâches</div>
+          </div>
+          <div style="background:#111;border-radius:4px;padding:6px;text-align:center">
+            <div style="font-size:14px;color:#38bdf8;font-weight:700">60%</div>
+            <div style="font-size:8px;color:#555">avancement</div>
+          </div>
+          <div style="background:#111;border-radius:4px;padding:6px;text-align:center">
+            <div style="font-size:14px;color:#f97316;font-weight:700">5j</div>
+            <div style="font-size:8px;color:#555">restants</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;font-size:9px;border-b:1px solid #1e1e1e;padding-bottom:6px;margin-bottom:8px">
+          <span style="color:#f97316;border-bottom:1px solid #f97316;padding-bottom:2px">Tâches</span>
+          <span style="color:#555">Notes</span>
+          <span style="color:#555">Fichiers</span>
+        </div>
+        <div style="background:#111;border-radius:4px;padding:6px;margin-bottom:3px;display:flex;justify-content:space-between;font-size:9px;color:#aaa">
+          <span>Dev frontend</span><span style="color:#38bdf8">En cours</span>
+        </div>
+        <div style="background:#111;border-radius:4px;padding:6px;display:flex;justify-content:space-between;font-size:9px;color:#aaa">
+          <span>Maquettes</span><span style="color:#555">Backlog</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Page projet full (avec onglets)</h3>
+      <p>Page dédiée avec en-tête (stats : tâches, %, jours restants), puis onglets Tâches / Notes / Fichiers. Plus riche, navigable en profondeur.</p>
+    </div>
+  </div>
+
+</div>
